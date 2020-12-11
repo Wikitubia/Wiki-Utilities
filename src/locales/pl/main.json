@@ -1,0 +1,189 @@
+{
+    "commands": {
+        "help": {
+            "description": {
+                "content": "Wysyła informacje na temat komend bota.",
+                "usages": [
+                    " ",
+                    "[komenda]"
+                ]
+            },
+            "list": "Lista wszystkich dostępnych komend.",
+            "more_info": "Aby uzyskać więcej informacji na temat poszczególnych komend, wyślij `{{prefix}}{{alias}} <komenda>`.",
+            "command_help": "Pomoc na temat {{command}}",
+            "no_description": "Nie podano opisu.",
+            "aliases": "Aliasy",
+            "usages": "Zastosowanie",
+            "examples": "Przykłady"
+        },
+        "ping": {
+            "description": "Pokazuje aktualny ping bota."
+        },
+        "reload": {
+            "description": {
+                "content": "Przeładowuje moduł.",
+                "usages": [
+                    "[komenda]"
+                ]
+            },
+            "success": "Pomyślnie przeładowano {{type}} **{{id}}**.",
+            "error": "Coś poszło nie tak.",
+            "prompt": {
+                "start": "{{- author}}, jaki moduł chcesz przeładować?",
+                "retry": "{{- author}}, to nie wygląda na poprawny moduł!"
+            }
+        },
+        "block": {
+            "description": {
+                "content": "Blokuje danego użytkownika na wiki.",
+                "usages": [
+                    "<użytkownik> <czas trwania>",
+                    "<użytkownik> <czas trwania> <powód>"
+                ]
+            },
+            "blocking": "Blokowanie użytkownika…",
+            "unblock_success": "Pomyślnie odblokowano użytkownika.",
+            "already_blocked": "Ten użytkownik jest już zablokowany! Aby go odblokować, użyj opcji `--unblock`.",
+            "not_blocked": "Ten użytkownik nie jest zablokowany!",
+            "error": "Wystąpił błąd podczas {{type}}",
+            "block_success": "Pomyślnie zablokowano użytkownika!",
+            "prompt": {
+                "user": "{{- author}}, jakiego użytkownika chcesz zablokować?",
+                "expiry": {
+                    "start": "{{- author}}, na jak długo mam zablokować użytkownika?",
+                    "retry": "{{- author}}, to nie wygląda na poprawny czas!"
+                }
+            },
+            "unblocking": "Odblokowywanie użytkownika…"
+        },
+        "category": {
+            "description": {
+                "content": "Listuje wszystkie strony z danej kategorii na podanej wiki.",
+                "usages": [
+                    "<kategoria>",
+                    "--cfd",
+                    "--stub"
+                ]
+            },
+            "fetching": "Pobieranie stron w kategorii **{{category}}**…",
+            "category": "Kategoria",
+            "empty": "Kategoria **{{category}}** jest pusta!",
+            "prompt": "{{- author}}, strony należące do jakiej kategorii mam wylistować?"
+        },
+        "delete": {
+            "description": {
+                "content": "Usuwa daną stronę na danej wiki, wraz z opcjonalnym powodem usunięcia.",
+                "usages": [
+                    "<strona> [powód]"
+                ]
+            },
+            "deleting": "Usuwanie strony…",
+            "success": "Poprawnie usunięto stronę!",
+            "prompt": "{{- author}}, jaką stronę mam usunąć?"
+        },
+        "edit": {
+            "description": {
+                "content": "Edytuje daną stronę na określonej wiki, wraz z opcją dodania treści na końcu lub na początku.",
+                "usages": [
+                    "<strona> <treść> --prepend",
+                    "<strona> <treść> --append"
+                ]
+            },
+            "editing": "Edytowanie strony…",
+            "success": "Poprawnie edytowano treść strony.",
+            "prompt": {
+                "page": "{{- author}}, jaką stronę mam edytować?",
+                "content": "{{- author}}, co chcesz dodać do {{page}}?",
+                "position": "{{- author}}, chcesz dodać treść na początku (`prepend`) czy na końcu (`append`) strony {{page}}?"
+            }
+        },
+        "move": {
+            "description": {
+                "content": "Przenosi (zmienia nazwę) strony na podanej wiki.",
+                "usages": [
+                    "<stara_strona> <nowa_strona> [-r=powód]"
+                ]
+            },
+            "moving": "Przenoszenie strony…",
+            "success": "Pomyślnie przeniesiono stronę!",
+            "prompt": {
+                "old": "{{- author}}, którą stronę mam przenieść?",
+                "new": "{{- author}}, jaka ma być nowa nazwa strony?"
+            }
+        },
+        "protect": {
+            "description": {
+                "content": "Zabezpiecza stronę na wiki wraz z opcjonalnym okresem ważności.",
+                "usages": [
+                    "<strona> <czas> [-r=<powód>]"
+                ]
+            },
+            "protecting": "Zabezpieczanie strony…",
+            "success": "Pomyślnie zabezpieczono stronę!",
+            "prompt": {
+                "page": "{{- author}}, jaką stronę mam zabezpieczyć?",
+                "expiry": {
+                    "start": "{{- author}}, na jak długo mam zabezpieczyć tę stronę?",
+                    "retry": "{{- author}}, nie wygląda to na poprawny czas!"
+                },
+                "usergroup": {
+                    "start": "{{- author}}, jakie grupy użytkowników mają mieć możliwość edycji strony?",
+                    "retry": "{{- author}}, to nie wygląda na poprawną grupę użytkowników!",
+                    "sysop": "`sysop` dla tylko administratorów, lub",
+                    "autoconfirmed": "`autoconfirmed` dla autopotwierdzonych użytkowników."
+                }
+            }
+        },
+        "undelete": {
+            "description": {
+                "content": "Przywraca daną stronę na podanej wiki.",
+                "usages": [
+                    "<strona> <powód>"
+                ]
+            },
+            "restoring": "Przywracanie strony…",
+            "success": "Pomyślnie przywrócono stronę!",
+            "prompt": "{{- author}}, którą stronę mam odbezpieczyć?"
+        }
+    },
+    "handler": {
+        "categories": {
+            "client": "Klient",
+            "utilities": "Narzędzia",
+            "wiki": "Wiki"
+        },
+        "prompt": {
+            "cancel": "Napisz `cancel` aby anulować komendę.",
+            "cancelled": "Okej, komenda została anulowana.",
+            "ended": "3 razy Ci piszę i Ty nadal nie rozumiesz. Komenda została anulowana.",
+            "timeout": "Zbyt długi czas odpowiedzi, komenda została anulowana."
+        },
+        "inhibitors": {
+            "wiki_action": {
+                "no_wiki": "Nie ma jeszcze żadnej wiki ustawionej dla tego serwera!",
+                "no_roles": "Ta komenda wymaga ustawionej roli nadanej użytkownikom aby zapobiec nadużyciom.",
+                "need_roles": "Potrzebujesz jednej z następujących ról aby użyć tej komendy.",
+                "no_credentials": "Nie jestem zalogowany na konto bota!"
+            }
+        },
+        "listeners": {
+            "message_reaction_add": {
+                "rcgcdw_summary": "Akcja wykonana przez Discord - {{user}}",
+                "error_occurred": "Wykryto błąd: {{error}}"
+            },
+            "missing_permissions": {
+                "user_missing_0": "nie posiadam następującego zezwolenia aby wykonać tę komendę:",
+                "user_missing_1": "nie posiadam następujących zezwoleń aby wykonać tę komendę:",
+                "user_missing_2": "nie posiadam następujących zezwoleń aby wykonać tę komendę:",
+                "client_missing_0": "Brakuje mi następującego uprawnienia aby wykonać tę komendę:",
+                "client_missing_1": "Brakuje mi następujących uprawnień aby wykonać tę komendę:",
+                "client_missing_2": "Brakuje mi następujących uprawnień aby wykonać tę komendę:"
+            }
+        }
+    },
+    "general": {
+        "no_reason": "Brak podanej przyczyny",
+        "no_summary": "Brak podanego opisu",
+        "more": "Więcej"
+    }
+}

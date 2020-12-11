@@ -1,5 +1,5 @@
+const i18n = require('i18next');
 const { Inhibitor } = require('discord-akairo');
-const { stripIndents } = require('common-tags');
 
 class WikiActionInhibitor extends Inhibitor {
     constructor() {
@@ -20,9 +20,9 @@ class WikiActionInhibitor extends Inhibitor {
 
     async exec(message, command) {
         if (!message.guild) return false;
-        if (message.util.parsed.command.categoryID !== 'Wiki') return false;
+        if (message.util?.parsed?.command?.categoryID !== 'wiki') return false;
 
-        const config = this.client.config.wiki;
+        const config = this.client.config.guilds[message.guild.id];
         if (!config) return false;
 
         const { needsRole, needsCredentials } = this.commandMap[message.util.parsed.command.id];
@@ -32,29 +32,28 @@ class WikiActionInhibitor extends Inhibitor {
         if (config.blacklisted_users.includes(message.author.id)) return true;
 
         if (!config.url) {
-            await message.util.send(`There isn't a wiki set up for this server, yet!`);
+            await message.util.send(i18n.t('handler.inhibitors.wiki_action.no_wiki'));
             return true;
         }
-        if (needsRole) {
-            if (!config.allowed_roles.length) {
-                await message.util.send(`This command requires a role to be set and given to users to prevent abuse.`);
-                return true;
-            }
 
+        if (needsRole) {
             const arr = [];
             config.allowed_roles.forEach(role => arr.push(message.guild.roles.cache.get(role)));
 
-            if (!config.allowed_roles.some(role => message.member.roles.cache.has(role))) {
-                await message.util.send(stripIndents`
-        You need one of the following roles to use this command.
-        ${arr.map(role => `\`${role.name}\``).join('\n')}
-        `);
+            if (
+                !config.allowed_roles.some(role => message.member.roles.cache.has(role))
+                && !this.client.config.owners.includes(message.author.id)
+            ) {
+                await message.util.send(this.client.fmt.stripIndents(`
+        ${i18n.t('handler.inhibitors.wiki_action.need_roles')}
+        ${arr.map(role => role && `\`${role.name}\``).join('\n')}
+        `));
                 return true;
             }
         }
 
-        if (needsCredentials && (!config.credentials || (!config.credentials.username || !config.credentials.password))) {
-            await message.util.send(`I am not logged into a wiki bot!`);
+        if (needsCredentials && (!config.credentials?.username || !config.credentials?.password)) {
+            await message.util.send(i18n.t('handler.inhibitors.wiki_action.no_credentials'));
             return true;
         }
 

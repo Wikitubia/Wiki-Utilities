@@ -1,4 +1,4 @@
-const { stripIndents } = require('common-tags');
+const i18n = require('i18next');
 const Command = require('../../structs/Command');
 const ProtectAction = require('./actions/Protect');
 
@@ -6,27 +6,23 @@ class ProtectCommand extends Command {
     constructor() {
         super('protect', {
             aliases: ['protect', 'prt'],
-            description: {
-                content: 'Protects a given page on the wiki with an optional expiry.',
-                usages: ['<page> <time> [-r=<reason>]'],
-                examples: ['KSI 2w -r="High traffic"', 'Project:Rules infinite']
-            },
-            category: 'Wiki',
+            description: i18n.t('commands.protect.description', { returnObjects: true }),
+            category: 'wiki',
             channel: 'guild',
             args: [
                 {
                     id: 'page',
                     type: 'string',
                     prompt: {
-                        start: message => `${message.author}, which page shall I protect?`
+                        start: message => i18n.t('commands.protect.prompt.page', { author: message.author.toString() })
                     }
                 },
                 {
                     id: 'expiry',
                     type: 'duration',
                     prompt: {
-                        start: message => `${message.author}, for how long shall this page be protected for?`,
-                        retry: message => `${message.author}, that doesn't look like a valid time!`
+                        start: message => i18n.t('commands.protect.prompt.expiry.start', { author: message.author.toString() }),
+                        retry: message => i18n.t('commands.protect.prompt.expiry.retry', { author: message.author.toString() })
                     }
                 },
                 {
@@ -35,25 +31,24 @@ class ProtectCommand extends Command {
                     match: 'option',
                     flag: ['--group=', '-g='],
                     prompt: {
-                        start: message => stripIndents`
-                        ${message.author}, which usergroup shall be allowed to edit this page?
+                        start: message => this.client.fmt.stripIndents(`
+                        ${i18n.t('commands.protect.prompt.usergroup.start', { author: `<@${message.author.id}` })}
                         
-                        \`sysop\` for only admins, or
-                        \`autoconfirmed\` for only autoconfirmed users.
-                        `,
-                        retry: message => stripIndents`
-                        ${message.author}, that doesn't look like a valid usergroup!
+                        ${i18n.t('commands.protect.prompt.usergroup.sysop')}
+                        ${i18n.t('commands.protect.prompt.usergroup.autoconfirmed')}
+                        `),
+                        retry: message => this.client.fmt.stripIndents(`
+                        ${i18n.t('commands.protect.prompt.usergroup.retry', { author: `<@${message.author.id}` })}
                         
-                        \`sysop\` for only admins, or
-                        \`autoconfirmed\` for only autoconfirmed users.
-                        `
+                        ${i18n.t('commands.protect.prompt.usergroup.sysop')}
+                        ${i18n.t('commands.protect.prompt.usergroup.autoconfirmed')}
+                        `)
                     }
                 },
                 {
                     id: 'reason',
                     match: 'option',
-                    flag: ['--reason=', '-r='],
-                    default: 'No reason provided'
+                    flag: ['--reason=', '-r=']
                 }
             ]
         });

@@ -1,3 +1,4 @@
+const i18n = require('i18next');
 const EditAction = require('./actions/Edit');
 const Command = require('../../structs/Command');
 
@@ -5,14 +6,10 @@ class EditCommand extends Command {
     constructor() {
         super('edit', {
             aliases: ['edit'],
-            description: {
-                content: 'Edits a given page on the set wiki, with the option of either appending or prepending content.',
-                usages: ['<page> <content> --prepend', '<page> <content> --append'],
-                examples: ['PewDiePie {{Stub}} --prepend', '"Sidemen Gaming" [[Category:YouTubers]] --append']
-            },
-            category: 'Wiki',
+            description: i18n.t('commands.edit.description', { returnObjects: true }),
+            category: 'wiki',
             channel: 'guild',
-            optionFlags: ['--summary=', '-s=', '--pos=', '-pos=', '-p=']
+            optionFlags: ['--summary=', '-s=', '--reason=', '-r=', '--pos=', '-pos=', '-p=']
         });
     }
 
@@ -20,22 +17,21 @@ class EditCommand extends Command {
         const page = yield {
             type: 'string',
             prompt: {
-                start: message => `${message.author}, which page do you wish to edit?`
+                start: message => i18n.t('commands.edit.prompt.page', { author: message.author.toString() })
             }
         };
 
         const content = yield {
             type: 'string',
             prompt: {
-                start: message => `${message.author}, what do you wish to add to ${page}?`
+                start: message => i18n.t('commands.edit.prompt.content', { author: message.author.toString() })
             }
         };
 
         const summary = yield {
-            match: 'option',
             type: 'summary',
-            flag: ['--summary=', '-s='],
-            default: 'No summary provided'
+            match: 'option',
+            flag: ['--summary=', '-s=', '--reason=', '-s=']
         };
 
         const pos = yield {
@@ -46,8 +42,8 @@ class EditCommand extends Command {
             match: 'option',
             flag: ['--pos=', '-pos=', '-p='],
             prompt: {
-                start: message => `${message.author}, do you wish to \`prepend\` or \`append\` this content to ${page}?`,
-                retry: message => `${message.author}, do you wish to \`prepend\` or \`append\` this content to ${page}?`
+                start: message => i18n.t('commands.edit.prompt.position', { author: message.author.toString() }),
+                retry: message => i18n.t('commands.edit.prompt.position', { author: message.author.toString() })
             }
         };
 

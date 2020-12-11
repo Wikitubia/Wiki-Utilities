@@ -1,16 +1,13 @@
+const i18n = require('i18next');
 const Command = require('../../structs/Command');
 
 class HelpCommand extends Command {
     constructor() {
         super('help', {
             aliases: ['help', 'halp', 'h'],
-            description: {
-                content: 'Sends information on the bot\'s commands.',
-                usages: ['', '[command]'],
-                examples: ['', 'tag']
-            },
-            category: 'Utilities',
-            clientPermissions: ['EMBED_LINKS'],
+            description: i18n.t('commands.help.description', { returnObjects: true }),
+            category: 'utilities',
+            clientPermissions: ['EMBED_LINKS', 'ADD_REACTIONS'],
             args: [
                 {
                     id: 'command',
@@ -26,45 +23,41 @@ class HelpCommand extends Command {
             fields: [],
             color: 'YELLOW'
         };
-        const [prefix] = this.handler.prefix(message);
+        const [prefix] = this.handler.prefix;
 
         if (command) {
-            embed.author.name = `${this.client.util.capitalise(command.aliases[0])} Command Help`;
+            embed.author.name = i18n.t('commands.help.command_help', { command: this.client.util.capitalise(command.aliases[0]) });
             embed.author.icon_url = this.client.user.displayAvatarURL();
-            embed.description = command.description.content || 'No description provided.';
+            embed.description = command.description.content || i18n.t('commands.help.no_description');
 
-            if (command.aliases && command.aliases.length > 1) {
+            if (command.aliases?.length > 1) {
                 embed.fields.push({
-                    name: 'Aliases',
+                    name: i18n.t('commands.help.aliases'),
                     value: command.aliases.slice(1).join('\n')
                 });
             }
 
-            if (command.description.usages && command.description.usages.length) {
+            if (command.description?.usages?.length) {
                 embed.fields.push({
-                    name: 'Usages',
+                    name: i18n.t('commands.help.usages'),
                     value: command.description.usages.map(usage => `${prefix}${command.aliases[0]} ${this.formatUsage(usage)}`).join('\n')
                 });
             }
-
-            if (command.description.examples && command.description.examples.length) {
-                embed.fields.push({
-                    name: 'Examples',
-                    value: command.description.examples.map(example => `${prefix}${command.aliases[0]} ${example}`).join('\n')
-                });
-            }
         } else {
-            embed.description = `A list of all available commands.\nFor information on a specific command, send \`${prefix}${this.aliases[0]} <command>\``;
+            embed.description = `${i18n.t('commands.help.list')}\n${i18n.t('commands.help.more_info', { prefix: prefix, alias: this.aliases[0] } )}`;
 
             for (const category of this.handler.categories.values()) {
                 const commands = category
                     .filter(cmd => cmd.aliases.length > 0 && !cmd.ownerOnly)
                     .map(cmd => `\`${cmd.aliases[0]}\``)
                     .join(' ');
+
                 if (!commands.length) continue;
 
+                const categories = i18n.t('handler.categories', { returnObjects: true });
+
                 embed.fields.push({
-                    name: `${category.id}`,
+                    name: categories[category.id],
                     value: commands
                 });
             }

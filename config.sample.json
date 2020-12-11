@@ -1,27 +1,72 @@
 {
   "token": "",
   "prefixes": ["wu!"],
+  "lang": "en",
   "owners": [""],
-  "wiki": {
-    "url": "",
-    "allowed_roles": [""],
-    "blacklisted_users": [],
-    "rcgcdw_extension": {
-      "enabled": false,
-      "channel_id": "",
-      "emojis": {
-        "delete": "\uD83C\uDDE9",
-        "revert": "\uD83C\uDDF7",
-        "block": "\uD83C\uDDE7"
+  "guilds": {
+    "": {
+      "url": "",
+      "path": "",
+      "allowed_roles": [""],
+      "blacklisted_users": [],
+      "defaults": {
+        "allow_user_talk": false,
+        "autoblock": true,
+        "block_user_talk": true
+      },
+      "rcgcdw_extension": {
+        "enabled": false,
+        "channel_ids": [""],
+        "mode": "embed",
+        "wiki_name": "",
+        "block_duration": "2 weeks",
+        "emojis": {
+          "delete": ["\uD83C\uDDE9"],
+          "revert": ["\uD83C\uDDF7"],
+          "block": ["\uD83C\uDDE7"]
+        }
+      },
+      "credentials": {
+        "username": "",
+        "password": ""
       }
+    }
+  },
+  "infinite_lengths": [
+    "infinite",
+    "never",
+    "forever",
+    "infinity",
+    "indefinite"
+  ],
+  "user_map": {
+    "enabled": true,
+    "": ""
+  },
+  "summaries": {
+    "block": {
+      "is_mapped": "$reason - [[User:$username/discord|via Discord]]",
+      "not_mapped": "$reason - $tag"
     },
-    "user_map": {
-      "enabled": true,
-      "": ""
+    "delete": {
+      "is_mapped": "$reason - [[User:$username/discord|via Discord]]",
+      "not_mapped": "$reason - $tag"
     },
-    "credentials": {
-      "username": "",
-      "password": ""
+    "edit": {
+      "is_mapped": "$summary - [[User:$username/discord|via Discord]]",
+      "not_mapped": "$summary - $tag"
+    },
+    "move": {
+      "is_mapped": "$reason - [[User:$username/discord|via Discord]]",
+      "not_mapped": "$reason - $tag"
+    },
+    "unprotect": {
+      "is_mapped": "$reason - [[User:$username/discord|via Discord]]",
+      "not_mapped": "$reason - $tag"
+    },
+    "undelete": {
+      "is_mapped": "$reason - [[User:$username/discord|via Discord]]",
+      "not_mapped": "$reason - $tag"
     }
   }
 }

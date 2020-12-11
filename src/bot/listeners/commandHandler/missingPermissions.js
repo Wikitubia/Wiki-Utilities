@@ -1,5 +1,5 @@
+const i18n = require('i18next');
 const { Listener } = require('discord-akairo');
-const { stripIndents } = require('common-tags');
 
 class MissingPermissionsListener extends Listener {
     constructor() {
@@ -15,22 +15,26 @@ class MissingPermissionsListener extends Listener {
 
         switch (type) {
             case 'client':
-                result = stripIndents`
-                I am missing the following permission${missing.length > 1 ? 's' : '' } to run this command:
+                result = this.client.fmt.stripIndents(`
+                ${i18n.t('handler.listeners.missing_permissions.client_missing', { count: missing.length })}
                 ${missing
                     .map(m => `\`${m}\``)
                     .join('\n')
                 }
-                `;
+                `);
+
+                this.client.logger.warn(`Client missing permission(s) for command ${command.id}}: ${missing.join('  ')}`);
                 break;
             case 'user':
-                result = stripIndents`
-                you are missing the following permission${missing.length > 1 ? 's' : '' } to run this command:
+                result = this.client.fmt.stripIndents(`
+                ${i18n.t('handler.listeners.missing_permissions.user_missing', { count: missing.length })}
                 ${missing
                     .map(m => `\`${m}\``)
                     .join('\n')
                 }
-                `;
+                `);
+
+                this.client.logger.warn(`User ${message.author} missing permission(s) for command ${command.id}}: ${missing.join('  ')}`);
         }
 
         try {

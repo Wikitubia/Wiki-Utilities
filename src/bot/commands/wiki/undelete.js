@@ -1,3 +1,4 @@
+const i18n = require('i18next');
 const Command = require('../../structs/Command');
 const UndeleteAction = require('./actions/Undelete');
 
@@ -5,29 +6,23 @@ class UndeleteCommand extends Command {
     constructor() {
         super('undelete', {
             aliases: ['undelete', 'restore', 'undel'],
-            description: {
-                content: 'Restores/undeletes a given page on the set wiki.',
-                usages: ['<page> <reason>'],
-                examples: ['KSI -r="all sorted out"', 'Sidemen Gaming -r=accidental']
-            },
-            category: 'Wiki',
+            description: i18n.t('commands.undelete.description', { returnObjects: true }),
+            category: 'wiki',
             channel: 'guild',
-            optionFlags: ['--reason', '-r'],
             args: [
                 {
                     id: 'page',
                     type: 'string',
                     match: 'text',
                     prompt: {
-                        start: message => `${message.author}, which page shall I unprotect?`
+                        start: message => i18n.t('commands.undelete.prompt', { author: message.author.toString() })
                     }
                 },
                 {
                     id: 'reason',
                     type: 'summary',
                     match: 'option',
-                    flag: ['--reason=', '-r='],
-                    default: 'No reason provided'
+                    flag: ['--reason=', '-r=']
                 }
             ]
         });

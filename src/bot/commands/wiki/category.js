@@ -1,3 +1,4 @@
+const i18n = require('i18next');
 const Command = require('../../structs/Command');
 const CategoryAction = require('./actions/Category');
 
@@ -5,18 +6,14 @@ class CategoryCommand extends Command {
     constructor() {
         super('category', {
             aliases: ['category', 'cat'],
-            description: {
-                content: 'Lists all pages in a given category on the set wiki.',
-                usages: ['<category>', '--cfd', '--stub'],
-                examples: ['Stubs', '--cfd', '--stub']
-            },
-            category: 'Wiki',
+            description: i18n.t('commands.category.description', { returnObjects: true }),
+            category: 'wiki',
             channel: 'guild',
             flags: ['--cfd', '--cands', '--stub', '--stubs', '-s']
         });
     }
 
-    *args() {
+    *args(message) {
         const cfd = yield {
             id: 'cfd',
             match: 'flag',
@@ -36,13 +33,13 @@ class CategoryCommand extends Command {
                 type: 'string',
                 match: 'text',
                 prompt: {
-                    start: message => `${message.author}, which category shall I list the pages of?`
+                    start: message => i18n.t('commands.category.prompt', { author: message.author.toString() })
                 }
             };
         }
 
-        if (cfd) category = 'Candidates for deletion';
-        if (stub) category = 'Stubs';
+        if (cfd) category = this.client.config.guilds[message.guild.id]?.categories.cfd;
+        if (stub) category = this.client.config.guilds[message.guild.id]?.categories.stub;
 
         return { category };
     }

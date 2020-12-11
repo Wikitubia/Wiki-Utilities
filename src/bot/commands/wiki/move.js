@@ -1,3 +1,4 @@
+const i18n = require('i18next');
 const MoveAction = require('./actions/Move');
 const Command = require('../../structs/Command');
 
@@ -5,35 +6,30 @@ class MoveCommand extends Command {
     constructor() {
         super('move', {
             aliases: ['move', 'rename'],
-            description: {
-                content: 'Moves (renames) a page on the set wiki.',
-                usages: ['<old_page> <new_page> [-r=reason]'],
-                examples: ['"Jake Paul" trash -r="name says it"']
-            },
+            description: i18n.t('commands.move.description', { returnObjects: true }),
             channel: 'guild',
             optionFlags: ['--reason', '-r'],
-            category: 'Wiki',
+            category: 'wiki',
             args: [
                 {
                     id: 'old',
                     type: 'string',
                     prompt: {
-                        start: message => `${message.author}, which page shall I move?`
+                        start: message => i18n.t('commands.move.prompt.old', { author: message.author.toString() })
                     }
                 },
                 {
                     id: 'new',
                     type: 'string',
                     prompt: {
-                        start: message => `${message.author}, what shall the page's new name be?`
+                        start: message => i18n.t('commands.move.prompt.new', { author: message.author.toString() })
                     }
                 },
                 {
                     id: 'reason',
                     type: 'summary',
                     match: 'option',
-                    flag: ['--reason=', '-r='],
-                    default: 'No reason provided'
+                    flag: ['--reason=', '-r=']
                 }
             ]
         });

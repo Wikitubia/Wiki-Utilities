@@ -1,5 +1,5 @@
+const i18n = require('i18next');
 const Action = require('./Action');
-const { stripIndents } = require('common-tags');
 
 class BlockAction extends Action {
     constructor(data) {
@@ -9,16 +9,18 @@ class BlockAction extends Action {
     }
 
     async exec() {
-        const type = this.args.unblock ? 'Unblocking' : 'Blocking';
-        const initMessage = await this.message.util.send(`${type} user...`);
+        const type = this.args.unblock ? i18n.t('commands.block.unblocking') : i18n.t('commands.block.blocking');
+        const initMessage = await this.message.util.send(type);
 
-        await this.bot.login();
+        await this.bot.login(this.creds.username, this.creds.password);
 
         const body = await this.bot.block({
             user: this.args.user,
             expiry: this.args.expiry,
             reason: this.args.reason,
-            autoblock: true
+            allowUserTalk: this.config.defaults.allow_user_talk,
+            autoblock: this.config.defaults.autoblock,
+            reblock: this.config.defaults.reblock
         });
 
         if (body.error) {
@@ -28,24 +30,25 @@ class BlockAction extends Action {
                         user: this.args.user,
                         reason: this.args.reason
                     });
-                    return initMessage.edit('Successfully unblocked user.');
+                    return initMessage.edit(i18n.t('commands.block.unblock_success'));
                 }
 
-                return initMessage.edit('That user is already blocked! To unblock them, you can pass the `--unblock` flag.');
+                return initMessage.edit(i18n.t('commands.block.already_blocked'));
             } else if (this.args.unblock) {
-                return initMessage.edit('That user is not blocked!');
+                return initMessage.edit(i18n.t('commands.block.not_blocked'));
             }
 
-            return initMessage.edit(stripIndents`
-            Error occurred while ${type} user.
+            return initMessage.edit(this.client.fmt.stripIndents(`
+            ${i18n.t('commands.block.error', { type: type })}
             \`\`\`apache
             ${body.error.code}
             
             ${body.error.info}
-            \`\`\``);
+            \`\`\`
+            `));
         }
 
-        return this.message.util.send('Successfully blocked user!');
+        return this.message.util.send(i18n.t('commands.block.block_success'));
     }
  }
 

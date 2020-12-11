@@ -1,8 +1,13 @@
 const Util = require('./Util');
 const { join } = require('path');
+const logger = require('./Logger');
+const i18next = require('i18next');
 const Command = require('./Command');
+const Formatter = require('./Formatter');
+const Backend = require('i18next-fs-backend');
+const PluginHandler = require('./PluginHandler');
+const { readdirSync, lstatSync } = require('fs');
 const { Intents: { FLAGS } } =  require('discord.js');
-const MediaWikiJS = require('@sidemen19/mediawiki.js');
 const { AkairoClient, CommandHandler, ListenerHandler, InhibitorHandler } = require('discord-akairo');
 
 class Client extends AkairoClient {
@@ -13,25 +18,56 @@ class Client extends AkairoClient {
                 disableMentions: 'everyone',
                 partials: [
                     'MESSAGE',
+                    'REACTION',
                     'USER',
-                    'REACTION'
+                    'GUILD_MEMBER'
                 ],
                 ws: {
                     intents: [
                         FLAGS.GUILDS,
                         FLAGS.GUILD_MESSAGES,
-                        FLAGS.GUILD_MESSAGE_REACTIONS
+                        FLAGS.GUILD_MESSAGE_REACTIONS,
+                        FLAGS.DIRECT_MESSAGES
                     ]
                 }
             }
         );
         this.config = config;
 
+        this.logger = logger;
+        this.fmt = new Formatter();
+        this.util = new Util();
+    }
+
+    async loadTranslations() {
+        /* eslint-disable no-undef */
+        await i18next
+            .use(Backend)
+            .init({
+                lng: this.config.lang,
+                returnEmptyString: false,
+                fallbackLng: 'en',
+                preload: readdirSync(join(__dirname, '../../locales')).filter(fileName => {
+                    const joinedPath = join(join(__dirname, '../../locales'), fileName);
+                    return lstatSync(joinedPath).isDirectory();
+                }),
+                ns: ['main'],
+                defaultNS: 'main',
+                backend: {
+                    loadPath: join(__dirname, '../../locales/{{lng}}/{{ns}}.json')
+                }
+            });
+
+        this.logger.info(`Loaded translations! Using lang ${this.config.lang}`);
+        /* eslint-enable no-undef */
+    }
+
+    initHandlers() {
         const dir = name => join(this.config.root, name);
 
         this.commandHandler = new CommandHandler(this, {
             directory: dir('commands'),
-            prefix: config.prefixes,
+            prefix: this.config.prefixes,
             classToHandle: Command,
             aliasReplacement: /-/g,
             allowMention: true,
@@ -41,11 +77,11 @@ class Client extends AkairoClient {
             defaultCooldown: 3000,
             argumentDefaults: {
                 prompt: {
-                    modifyStart: (_, str) => `${str}\n\nType \`cancel\` to cancel the command.`,
-                    modifyRetry: (_, str) => `${str}\n\nType \`cancel\` to cancel the command.`,
-                    timeout: `You took too long to respond, command has been cancelled.`,
-                    ended: `More than 3 tries and you still didn't quite get it. The command has been cancelled.`,
-                    cancel: `Alright, the command has been cancelled.`,
+                    modifyStart: (_, str) => `${str}\n\n${i18next.t('handler.prompt.cancel')}`,
+                    modifyRetry: (_, str) => `${str}\n\n${i18next.t('handler.prompt.cancel')}`,
+                    timeout: i18next.t('handler.prompt.timeout'),
+                    ended: i18next.t('handler.prompt.ended'),
+                    cancel: i18next.t('handler.prompt.cancelled'),
                     retries: 3,
                     time: 30000
                 },
@@ -53,32 +89,40 @@ class Client extends AkairoClient {
             }
         });
 
+        this.addArgumentTypes();
+
         this.listenerHandler = new ListenerHandler(this, { directory: dir('listeners') });
         this.inhibitorHandler = new InhibitorHandler(this, { directory: dir('inhibitors') });
+        this.pluginHandler = new PluginHandler(this, {directory: dir('plugins') });
+    }
 
-        this.util = new Util(this);
-
-        this.bot = new MediaWikiJS({
-            server: config.wiki.url,
-            path: '',
-            botUsername: config.wiki.credentials.username,
-            botPassword: config.wiki.credentials.password
-        });
-
+    addArgumentTypes() {
         this.commandHandler.resolver.addType('summary', (message, phrase) => {
-            if (this.config.wiki.user_map.enabled
-                &&  this.config.wiki.user_map[message.author.id]
-            ) {
-                return `${phrase} - [[User:${this.config.wiki.user_map[message.author.id]}|${this.config.wiki.user_map[message.author.id]}]]`;
-            }
+            const { id } = message.util.parsed.command;
+            
+            const reason = phrase || (id === 'edit'
+                ? i18next.t('general.no_summary')
+                : i18next.t('general.no_reason'));
 
-            return `${phrase} - ${message.author.tag}`;
+            let username;
+
+            if (this.config.user_map.enabled
+                && this.config.user_map[message.author.id]
+            ) username = this.config.user_map[message.author.id];
+            
+            const string = this.config.summaries[id][username ? 'is_mapped' : 'not_mapped' ];
+
+            return string
+                .replace('$reason', reason)
+                .replace('$summary', reason)
+                .replace('$tag', message.author.tag)
+                .replace('$username', username);
         });
 
         this.commandHandler.resolver.addType('duration', (message, phrase) => {
             if (!phrase) return null;
 
-            if (!/^never|in(?:finit[ey]|definite)$/i.test(phrase)) {
+            if (!this.config.infinite_lengths.includes(phrase.toLowerCase())) {
                 const timeRegex = /^(-?(?:\d+)?\.?\d+) *(minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|months?|mo|years?|yrs?|y)?$/i;
                 if (!timeRegex.test(phrase)) return null;
 
@@ -121,11 +165,14 @@ class Client extends AkairoClient {
                 }
             }
 
-            return null;
+            return 'infinite';
         });
     }
 
-    start() {
+    async start() {
+        await this.loadTranslations();
+        this.initHandlers();
+
         this.commandHandler.useListenerHandler(this.listenerHandler);
         this.commandHandler.useInhibitorHandler(this.inhibitorHandler);
         this.listenerHandler.setEmitters({
@@ -133,9 +180,13 @@ class Client extends AkairoClient {
             inhibitorHandler: this.inhibitorHandler,
             listenerHandler: this.listenerHandler
         });
+
         this.commandHandler.loadAll();
         this.listenerHandler.loadAll();
         this.inhibitorHandler.loadAll();
+        this.pluginHandler.loadAll();
+
+        this.logger.info('Loaded handlers!');
 
         return super.login(this.config.token);
     }
